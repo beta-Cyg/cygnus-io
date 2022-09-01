@@ -1,0 +1,2 @@
+- cygnus::io use lazy-flush as default(if you don't use cygnus::ostream::flush() in your program, every cygnus::ostream object only flush the buffer when they destruct)- to output at the same time operator() be called, append an .flush() after operator()(example: cygnus::output("test").flush();)
+- cygnus::io don't support standard error stream with buffer
