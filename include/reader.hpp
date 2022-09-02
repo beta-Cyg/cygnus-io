@@ -3,7 +3,9 @@
 
 namespace cygnus{
 	template<typename T,const char* mode>
+#if __cplusplus >= 202002L
 	requires is_stream_type<T>/* and is_in_mode<mode>*/
+#endif
 	class reader:public io_base{
 	private:
 		std::FILE* ptr;
@@ -27,12 +29,12 @@ namespace cygnus{
 			in_mutex.unlockby(this);
 		}
 
-		char read(){
+		char read()const{
 			if(not in_mutex.lockedby(this))throw io_exception("stdin have had by another reader");
 			return std::fgetc(ptr);
 		}
 
-		char read(buffer<T>& buf,const size_t& n){
+		char read(buffer<T>& buf,const size_t& n)const{
 			char ch;
 			for(size_t i=0;i<n;i++){
 				ch=read();

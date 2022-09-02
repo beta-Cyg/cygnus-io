@@ -2,11 +2,17 @@
 #define IO
 
 #include<deque>
+#ifdef SYNC_IO
+#include<mutex>
+#endif
 #include<string>
 #include<cstdio>
 #include<cstring>
-//#include<iostream>
+
+#if __cplusplus >= 202002L
 #include<concepts>
+#endif
+
 #include<exception>
 
 #include<fmt/format.h>
@@ -21,14 +27,5 @@
 #include"reader.hpp"
 #include"stream_base.hpp"
 #include"stream.hpp"
-
-namespace cygnus{
-	template<typename T,const char* mode,const size_t buffer_size,typename... Args>
-	auto& print(ostream<T,mode,buffer_size>& os,fmt::format_string<Args...>format,Args&&...v){
-		//debug
-		//std::cout<<fmt::format(format,v...);
-		return os(fmt::format(format,v...));
-	}
-}
 
 #endif

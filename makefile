@@ -1,5 +1,5 @@
 CXX=g++
-OPT="-std=c++20 -Wno-terminate -lfmt"
+OPT="-Wno-terminate -lfmt"
 target=all
 
 all: compile

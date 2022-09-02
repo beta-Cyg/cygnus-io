@@ -1,9 +1,14 @@
-//#include"io.hpp"
-#include<iostream>
+#define SYNC_IO
+#include"io.hpp"
+#include<thread>
 
 int main(){
-	//cygnus::output("Mike is my best friend.\n");
-	std::cout<<"Mike is my best friend.\n";
+	auto f=[](){
+		for(int i=0;i<10;i++)
+			cygnus::output("Mike\n");
+	};
+	std::thread(f).detach();
+	std::thread(f).join();
 
 	return 0;
 }

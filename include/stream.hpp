@@ -10,11 +10,16 @@
 
 namespace cygnus{
 	template<typename value_type=char,const char* Mode=in,const size_t buffer_size=1024>
+#if __cplusplus >= 202002L
 	requires is_under_limit<buffer_size>
+#endif
 	class istream:public stream_base{
 	private:
 		buffer<value_type>buf;
 		reader<value_type,Mode>Reader;
+#ifdef SYNC_IO
+		std::mutex mutex;
+#endif
 	public:
 		istream():Reader(stdin){}
 
@@ -26,6 +31,9 @@ namespace cygnus{
 		}
 	public:
 		auto& operator()(char& v){
+#ifdef SYNC_IO
+			std::lock_guard<std::mutex>guard(mutex);
+#endif
 			clear(buf);
 			while(buf.empty()){
 				flush();
@@ -41,6 +49,9 @@ namespace cygnus{
 		}
 
 		auto& operator()(int& v){
+#ifdef SYNC_IO
+			std::lock_guard<std::mutex>guard(mutex);
+#endif
 			clear(buf);
 			while(buf.empty()){
 				flush();
@@ -89,6 +100,9 @@ namespace cygnus{
 		}
 
 		auto& operator()(std::string& v){
+#ifdef SYNC_IO
+			std::lock_guard<std::mutex>guard(mutex);
+#endif
 			clear(buf);
 			while(buf.empty()){
 				flush();
@@ -128,11 +142,16 @@ namespace cygnus{
 	};
 
 	template<typename value_type=char,const char* Mode=out,const size_t buffer_size=1024>
+#if __cplusplus >= 202002L
 	requires is_under_limit<buffer_size>
+#endif
 	class ostream:public stream_base{
 	private:
 		buffer<value_type>buf;
 		writer<value_type,Mode>Writer;
+#ifdef SYNC_IO
+		std::mutex mutex;
+#endif
 
 		bool fulled(){
 			return buf.size()>=buffer_size;
@@ -143,6 +162,9 @@ namespace cygnus{
 		explicit ostream(const std::string& pos):Writer(pos){}
 
 		~ostream(){
+#ifdef SYNC_IO
+			std::lock_guard<std::mutex>guard(mutex);
+#endif
 			flush();
 		}
 
@@ -153,11 +175,17 @@ namespace cygnus{
 		}
 
 		auto& operator()(){
+#ifdef SYNC_IO
+			std::lock_guard<std::mutex>guard(mutex);
+#endif
 			flush();
 			return *this;
 		}
 
 		auto& operator()(const char& v){
+#ifdef SYNC_IO
+			std::lock_guard<std::mutex>guard(mutex);
+#endif
 			if(fulled())flush();
 			if(buf.size()<buffer_size)
 				buf.push_back(v);
@@ -165,6 +193,9 @@ namespace cygnus{
 		}
 
 		auto& operator()(const int& v){
+#ifdef SYNC_IO
+			std::lock_guard<std::mutex>guard(mutex);
+#endif
 			if(fulled())flush();
 			std::basic_string<value_type> strv=std::to_string(v);
 			if(buf.size()+strv.size()>buffer_size)
@@ -175,6 +206,9 @@ namespace cygnus{
 		}
 
 		auto& operator()(const double& v){
+#ifdef SYNC_IO
+			std::lock_guard<std::mutex>guard(mutex);
+#endif
 			if(fulled())flush();
 			std::basic_string<value_type> strv=std::to_string(v);
 			if(buf.size()+strv.size()>buffer_size)
@@ -185,6 +219,9 @@ namespace cygnus{
 		}
 
 		auto& operator()(const char* v){
+#ifdef SYNC_IO
+			std::lock_guard<std::mutex>guard(mutex);
+#endif
 			if(fulled())flush();
 			if(buf.size()+std::strlen(v)>buffer_size)
 				flush();
@@ -194,6 +231,9 @@ namespace cygnus{
 		}
 
 		auto& operator()(const std::string& v){
+#ifdef SYNC_IO
+			std::lock_guard<std::mutex>guard(mutex);
+#endif
 			//debug
 			//std::cout<<"v:"<<v<<std::endl;
 			//std::cout<<"buf:"<<getbuf()<<std::endl;

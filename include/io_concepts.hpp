@@ -34,6 +34,7 @@ namespace cygnus{
 		return true;
 	}
 
+#if __cplusplus >= 202002L
 	template<const size_t buffer_size>
 	concept is_under_limit=buffer_size<=max_buffer_size;
 
@@ -42,6 +43,8 @@ namespace cygnus{
 		std::same_as<T,char> or
 		std::same_as<T,wchar_t> or
 		std::same_as<T,byte>;
+#endif
+
 /*
 	template<const char* mode>
 	concept is_in_mode=

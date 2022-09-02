@@ -3,7 +3,9 @@
 
 namespace cygnus{
 	template<typename T,const char* mode>
+#if __cplusplus >= 202002L
 	requires is_stream_type<T>/* and is_out_mode<mode>*/
+#endif
 	class writer:public io_base{
 	private:
 		std::FILE* ptr;
@@ -27,12 +29,13 @@ namespace cygnus{
 			out_mutex.unlockby(this);
 		}
 
-		T write(const T& ch){
-			if(not out_mutex.lockedby(this))throw io_exception("stdout have had by another writer");
+		T write(const T& ch)const{
+			if(not out_mutex.lockedby(this))
+				throw io_exception("stdout have had by another writer");
 			return std::fputc(ch,ptr);
 		}
 
-		T write(const buffer<T>& buf){
+		T write(const buffer<T>& buf)const{
 			int result;
 			for(auto& ch:buf){
 				result=write(ch);
