@@ -1,11 +1,10 @@
 CXX=g++
-OPT="-Wno-terminate -lfmt"
-target=all
+OPT=-std=c++20 -Wno-terminate -lfmt
 
 all: compile
 
 compile:
-	cd include&&make CXX=$(CXX) OPT=$(OPT) $(target)
+	$(CXX) $(OPT) test/test.cpp -o bin/test.out
 
-clear:
+clean:
 	rm -f bin/* lib/*

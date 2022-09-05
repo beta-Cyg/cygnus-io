@@ -30,7 +30,7 @@ namespace cygnus{
 			return Reader.read(buf,buffer_size);
 		}
 	public:
-		auto& operator()(char& v){
+		istream<value_type,Mode,buffer_size>& operator()(char& v){
 #ifdef SYNC_IO
 			std::lock_guard<std::mutex>guard(mutex);
 #endif
@@ -48,7 +48,7 @@ namespace cygnus{
 			return *this;
 		}
 
-		auto& operator()(int& v){
+		istream<value_type,Mode,buffer_size>& operator()(int& v){
 #ifdef SYNC_IO
 			std::lock_guard<std::mutex>guard(mutex);
 #endif
@@ -99,7 +99,7 @@ namespace cygnus{
 			return *this;
 		}
 
-		auto& operator()(std::string& v){
+		istream<value_type,Mode,buffer_size>& operator()(std::string& v){
 #ifdef SYNC_IO
 			std::lock_guard<std::mutex>guard(mutex);
 #endif
@@ -122,7 +122,7 @@ namespace cygnus{
 		}
 
 		template<typename Head,typename...Rest>
-		auto& operator()(Head& head,Rest&...rest){
+		istream<value_type,Mode,buffer_size>& operator()(Head& head,Rest&...rest){
 			operator()(head);
 			return operator()(rest...);
 		}
@@ -174,7 +174,7 @@ namespace cygnus{
 			return result;
 		}
 
-		auto& operator()(){
+		ostream<value_type,Mode,buffer_size>& operator()(){
 #ifdef SYNC_IO
 			std::lock_guard<std::mutex>guard(mutex);
 #endif
@@ -182,7 +182,7 @@ namespace cygnus{
 			return *this;
 		}
 
-		auto& operator()(const char& v){
+		ostream<value_type,Mode,buffer_size>& operator()(const char& v){
 #ifdef SYNC_IO
 			std::lock_guard<std::mutex>guard(mutex);
 #endif
@@ -192,7 +192,7 @@ namespace cygnus{
 			return *this;
 		}
 
-		auto& operator()(const int& v){
+		ostream<value_type,Mode,buffer_size>& operator()(const int& v){
 #ifdef SYNC_IO
 			std::lock_guard<std::mutex>guard(mutex);
 #endif
@@ -205,12 +205,14 @@ namespace cygnus{
 			return *this;
 		}
 
-		auto& operator()(const double& v){
+		ostream<value_type,Mode,buffer_size>& operator()(const double& v){
 #ifdef SYNC_IO
 			std::lock_guard<std::mutex>guard(mutex);
 #endif
 			if(fulled())flush();
 			std::basic_string<value_type> strv=std::to_string(v);
+			while((strv.back()=='0' or strv.back()=='.') and strv.size()>1)
+				strv.pop_back();
 			if(buf.size()+strv.size()>buffer_size)
 				flush();
 			for(auto i:strv)
@@ -218,7 +220,7 @@ namespace cygnus{
 			return *this;
 		}
 
-		auto& operator()(const char* v){
+		ostream<value_type,Mode,buffer_size>& operator()(const char* v){
 #ifdef SYNC_IO
 			std::lock_guard<std::mutex>guard(mutex);
 #endif
@@ -230,7 +232,19 @@ namespace cygnus{
 			return *this;
 		}
 
-		auto& operator()(const std::string& v){
+		ostream<value_type,Mode,buffer_size>& write(const char* v,const std::size_t& l){
+#ifdef SYNC_IO
+			std::lock_guard<std::mutex>guard(mutex);
+#endif
+			if(fulled())flush();
+			if(buf.size()+l>buffer_size)
+				flush();
+			for(std::size_t i=0;i<l;i++)
+				buf.push_back(v[i]);
+			return *this;
+		}
+
+		ostream<value_type,Mode,buffer_size>& operator()(const std::string& v){
 #ifdef SYNC_IO
 			std::lock_guard<std::mutex>guard(mutex);
 #endif
@@ -246,7 +260,7 @@ namespace cygnus{
 		}
 
 		template<typename Head,typename... Rest>
-		auto& operator()(const Head& head,const Rest&... rest){
+		ostream<value_type,Mode,buffer_size>& operator()(const Head& head,const Rest&... rest){
 			operator()(head);
 			/*debug*/
 			//std::cout<<"t:"<<t<<" buf:"<<getbuf()<<std::endl;
@@ -254,7 +268,7 @@ namespace cygnus{
 		}
 
 		template<typename...Args>
-		auto& format(fmt::format_string<Args...> fmt,Args&&...v){
+		ostream<value_type,Mode,buffer_size>& format(fmt::format_string<Args...> fmt,Args&&...v){
 			return operator()(fmt::format(fmt,v...));
 		}
 
