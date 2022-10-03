@@ -1,0 +1,22 @@
+{
+    ["tool_target_test.out_linux_x86_64_cxx"] = {
+        toolname = "gcc",
+        toolchain_info = {
+            arch = "x86_64",
+            name = "gcc",
+            cachekey = "gcc_arch_x86_64_plat_linux",
+            plat = "linux"
+        },
+        program = "/usr/bin/gcc"
+    },
+    ["tool_target_test.out_linux_x86_64_ld"] = {
+        toolname = "gxx",
+        toolchain_info = {
+            arch = "x86_64",
+            name = "gcc",
+            cachekey = "gcc_arch_x86_64_plat_linux",
+            plat = "linux"
+        },
+        program = "/usr/bin/g++"
+    }
+}

@@ -1,5 +1,5 @@
-//#define SYNC_IO
-#include<io.hpp>
+#define SYNC_IO
+#include"../include/io.hpp"
 #include<numbers>
 
 long double a{std::numbers::pi};
