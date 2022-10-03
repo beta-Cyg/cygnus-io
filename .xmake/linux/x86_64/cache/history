@@ -8,6 +8,8 @@
         "xmake ",
         "xmake -y",
         "xmake ",
+        "xmake ",
+        "xmake ",
         "xmake "
     }
 }
